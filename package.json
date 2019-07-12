@@ -1,0 +1,21 @@
+{
+  "name": "promise-priority-queue",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.mjs",
+  "scripts": {
+    "test": "node --experimental-modules test.mjs"
+  },
+  "author": "",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jorgenkg/promise-priority-queue.git"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "babel-eslint": "^10.0.2",
+    "eslint": "^6.0.1",
+    "tape": "^4.9.1"
+  }
+}
