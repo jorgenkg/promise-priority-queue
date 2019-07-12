@@ -5,6 +5,12 @@ This is an implementation of a promisified [bucket priority queue](https://en.wi
 
 `node >= 10.0`
 
+## Installation
+
+```bash
+npm i -S promise-priority-queue
+```
+
 ## Usage
 ```javascript
 import PromiseQueue from 'promise-priority-queue';
