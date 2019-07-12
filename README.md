@@ -1,6 +1,10 @@
 # Promise Priority Queue
 This is an implementation of a promisified [bucket priority queue](https://en.wikipedia.org/wiki/Bucket_queue) written as an ES6 module with no external dependencies.
 
+## Requirements
+
+`node >= 10.0`
+
 ## Usage
 ```javascript
 import PromiseQueue from 'promise-priority-queue';
