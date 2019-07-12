@@ -38,7 +38,7 @@ import PromiseQueue from 'promise-priority-queue';
 
 
 ## Documentation
-The library exports a queue class that accepts a `bucketCount` and the optional parameters `concurrency`, `size` and  `startPaused`.
+The library exports a queue class that accepts a `bucketCount` and the optional parameter `concurrency`.
 
 ```javascript
 import PromiseQueue from 'promise-priority-queue';
