@@ -1,7 +1,7 @@
 import EventEmitter from 'events';
 
 export default class PromiseQueue extends EventEmitter {
-  constructor({ bucketCount = 10, concurrency = 1 } = {}){
+  constructor(bucketCount = 10, concurrency = 1){
     super();
 
     if( concurrency <= 0 ){

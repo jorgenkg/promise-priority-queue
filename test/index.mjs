@@ -27,7 +27,7 @@ test("It should be possible to add tasks to the queue when it is paused without 
 });
 
 test("It should execute tasks with highest priority first", async (t)=>{
-  const queue = new PromiseQueue({ concurrency: 1 });
+  const queue = new PromiseQueue( 10, 1 );
   queue.pause();
 
   const taskA = queue.addTask( 2, async () => await new Promise(resolve => setTimeout(() => resolve("A"), 100)));
@@ -44,7 +44,7 @@ test("It should execute tasks with highest priority first", async (t)=>{
 });
 
 test("It should execute tasks with identical priority in a FIFO manner", async (t)=>{
-  const queue = new PromiseQueue({ concurrency: 1 });
+  const queue = new PromiseQueue( 10, 1 );
   queue.pause();
 
   const taskA = queue.addTask( 1, async () => await new Promise(resolve => setTimeout(() => resolve("A"), 200)));
