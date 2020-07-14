@@ -4,20 +4,21 @@
   "description": "",
   "main": "index.mjs",
   "scripts": {
-    "test": "node --experimental-modules test.mjs"
+    "test": "node --experimental-modules test.mjs",
+    "release": "standard-version"
   },
   "author": "Jørgen Grimnes",
   "bugs": "https://github.com/jorgenkg/promise-priority-queue/issues",
   "keywords": [
-    "priority queue", 
-    "promise queue", 
-    "promisified queue", 
+    "priority queue",
+    "promise queue",
+    "promisified queue",
     "bucket queue"
   ],
   "license": "MIT",
   "type": "module",
-  "engines" : { 
-    "node" : ">=10.0" 
+  "engines": {
+    "node": ">=10.0"
   },
   "files": [
     "index.mjs"
@@ -28,8 +29,9 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "babel-eslint": "^10.0.2",
-    "eslint": "^6.0.1",
-    "tape": "^4.9.1"
+    "babel-eslint": "^10.1.0",
+    "eslint": "^7.4.0",
+    "standard-version": "^8.0.2",
+    "tape": "^5.0.1"
   }
 }
