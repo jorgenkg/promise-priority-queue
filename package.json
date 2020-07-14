@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.mjs",
   "scripts": {
-    "test": "node --experimental-modules test.mjs",
+    "test": "node --experimental-modules test/index.mjs",
     "release": "standard-version"
   },
   "author": "Jørgen Grimnes",
