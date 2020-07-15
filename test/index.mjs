@@ -78,3 +78,12 @@ test("Tasks should be concurrently executable if 'concurrency' > 1", async (t)=>
 
   t.ok( executedConcurrently, "Expected the tasks to be executed concurrently" );
 });
+
+
+test("It should gracefully handle errors thrown in tasks by rejecting the task promise", async (t)=>{
+  const queue = new PromiseQueue( 1, 2 );
+
+  const task = queue.addTask( 0, async () => await new Promise((resolve,reject) => setTimeout(() => reject(), 10)));
+
+  t.ok( await task.then(()=>false).catch(()=>true), "Expected the failing task to be rejected" );
+});
