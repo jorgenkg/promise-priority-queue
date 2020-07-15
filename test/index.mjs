@@ -79,6 +79,24 @@ test("Tasks should be concurrently executable if 'concurrency' > 1", async (t)=>
   t.ok( executedConcurrently, "Expected the tasks to be executed concurrently" );
 });
 
+test("Tasks should not be executed concurrently if 'concurrency' = 1", async (t)=>{
+  const queue = new PromiseQueue( 1, 1 );
+  queue.pause();
+
+  const taskA = queue.addTask( 0, async () => await new Promise(resolve => setTimeout(() => resolve("A"), 200)));
+  const taskB = queue.addTask( 0, async () => await new Promise(resolve => setTimeout(() => resolve("B"), 200)));
+
+  queue.resume();
+
+  const executedConcurrently = await Promise
+    .race([
+      Promise.all([taskA, taskB]).then(()=>true),
+      new Promise(resolve => setTimeout(() => resolve(false), 300))
+    ]);
+
+  t.notOk( executedConcurrently, "Expected the tasks not to be executed concurrently" );
+});
+
 
 test("It should gracefully handle errors thrown in tasks by rejecting the task promise", async (t)=>{
   const queue = new PromiseQueue( 1, 2 );
