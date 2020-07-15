@@ -8,6 +8,10 @@ export default class PromiseQueue extends EventEmitter {
       throw new Error("'concurrency' must be greater than 0");
     }
 
+    if( bucketCount <= 0 ){
+      throw new Error("'bucketCount' must be greater than 0");
+    }
+
     this.bucketCount = bucketCount;
     this.concurrency = concurrency;
     this.size = 0;
@@ -102,15 +106,11 @@ export default class PromiseQueue extends EventEmitter {
     if( typeof priority !== 'number' ){
       throw new Error("The task must be added with a numeric priority as the first argument");
     }
-    else if (priority > this.bucketCount-1 ){
+    else if (priority > this.bucketCount-1 || priority < 0){
       throw new Error(`The task priority must be less than the number of buckets`);
     }
     else if( !(task instanceof Function) ){
       throw new Error("The second, task argument must be a function");
-    }
-    else if( priority > this.bucketCount - 1 ){
-      throw new Error(`Priority cannot be higher than 'bucketCount'-1 at ${this.bucketCount-1}.`+
-        `Was: ${priority}`);
     }
 
     return await new Promise((resolve, reject)=>{
