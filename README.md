@@ -65,7 +65,7 @@ The size of the queue.
 
 Type: `number`
 
-The `priority` must be less than or equal to `bucketCount-1` . The task with the lowest priority value will be executed first.
+The `priority` must be in the range`[0, bucketCount-1]` . The task with the lowest priority value will be executed first.
 
 ##### task
 

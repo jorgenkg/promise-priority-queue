@@ -26,17 +26,11 @@ export default class PromiseQueue extends EventEmitter {
       while (true){
         if( this.size === 0 ){
           // If there are no tasks on the queue, wait for additional tasks to be added.
-          // Everytime a task is added to the queue, a "new-task" event is emitted. If the paused
-          // flag was set before new-task was emitted, the queue will remain paused.
-          await Promise
-            .race([
-              new Promise(resolve => this.once("pause", resolve)),
-              new Promise(resolve => this.once("new-task", resolve)),
-            ]);
+          await new Promise(resolve => this.once("new-task", resolve));
         }
 
         if( this.PAUSE ){
-          await new Promise(resolve=>this.once("resume", resolve)); 
+          await new Promise(resolve=>this.once("resume", resolve));
         }
 
         for(let i=this.low; i<this.bucketCount; i++){
@@ -50,7 +44,7 @@ export default class PromiseQueue extends EventEmitter {
             this.size -= 1;
             yield this.bucketQueue[i].pop();
             
-            // Return to the while loop since the next task to yield might be at a
+            // Return to the 'while loop' since the next task to yield might be at a
             // new priority index. That happens if new tasks have added to the queue
             // with a lower priority.
             break; 
@@ -69,16 +63,17 @@ export default class PromiseQueue extends EventEmitter {
         for await (const {task, resolve, reject} of nextTask) {
           inflight += 1;
 
-          try {
-            resolve( await task() );
-          }
-          catch( error ){
-            reject( error );
-          }
+          setImmediate(async () => {
+            try {
+              resolve( await task() );
+            }
+            catch( error ){
+              reject( error );
+            }
 
-          inflight -= 1;
-
-          this.emit("complete");
+            inflight -= 1;
+            this.emit("complete");
+          });
 
           if( inflight >= this.concurrency ){
             // We're at the threshold of our concurrency limit. We won't process another

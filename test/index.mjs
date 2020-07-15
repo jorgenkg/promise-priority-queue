@@ -5,7 +5,7 @@ import {test} from "./test.mjs";
 test("It should be possible to add tasks to the queue and return the promised result of the task", async (t)=>{
   const queue = new PromiseQueue();
   const result = {};
-  const taskFullfillmentPromise = queue.addTask( 1, async () => await new Promise(resolve => setTimeout(() => resolve(result), 100)));
+  const taskFullfillmentPromise = queue.addTask( 0, async () => await new Promise(resolve => setTimeout(() => resolve(result), 100)));
   t.ok( taskFullfillmentPromise instanceof Promise, "Expected the return value to be a promise");
   t.equal( await taskFullfillmentPromise, result, "Expected the promise returned by addTask to resolve to the result from the task" );
 });
@@ -15,7 +15,7 @@ test("It should be possible to add tasks to the queue when it is paused without 
   const queue = new PromiseQueue();
   queue.pause();
 
-  const taskFullfillmentPromise = queue.addTask( 1, async () => await new Promise(resolve => setTimeout(() => resolve(true), 100)));
+  const taskFullfillmentPromise = queue.addTask( 0, async () => await new Promise(resolve => setTimeout(() => resolve(true), 100)));
 
   const executedTask = await Promise
     .race([
@@ -27,11 +27,11 @@ test("It should be possible to add tasks to the queue when it is paused without 
 });
 
 test("It should execute tasks with highest priority first", async (t)=>{
-  const queue = new PromiseQueue( 10, 1 );
+  const queue = new PromiseQueue( 2, 1 );
   queue.pause();
 
-  const taskA = queue.addTask( 2, async () => await new Promise(resolve => setTimeout(() => resolve("A"), 100)));
-  const taskB = queue.addTask( 1, async () => await new Promise(resolve => setTimeout(() => resolve("B"), 200)));
+  const taskA = queue.addTask( 1, async () => await new Promise(resolve => setTimeout(() => resolve("A"), 100)));
+  const taskB = queue.addTask( 0, async () => await new Promise(resolve => setTimeout(() => resolve("B"), 200)));
 
   queue.resume();
 
@@ -44,11 +44,11 @@ test("It should execute tasks with highest priority first", async (t)=>{
 });
 
 test("It should execute tasks with identical priority in a FIFO manner", async (t)=>{
-  const queue = new PromiseQueue( 10, 1 );
+  const queue = new PromiseQueue( 1, 1 );
   queue.pause();
 
-  const taskA = queue.addTask( 1, async () => await new Promise(resolve => setTimeout(() => resolve("A"), 200)));
-  const taskB = queue.addTask( 1, async () => await new Promise(resolve => setTimeout(() => resolve("B"), 100)));
+  const taskA = queue.addTask( 0, async () => await new Promise(resolve => setTimeout(() => resolve("A"), 200)));
+  const taskB = queue.addTask( 0, async () => await new Promise(resolve => setTimeout(() => resolve("B"), 100)));
 
   queue.resume();
 
@@ -58,4 +58,23 @@ test("It should execute tasks with identical priority in a FIFO manner", async (
     ]);
 
   t.ok( executedTask === "A", "Expected the first task added to the queue be executed first" );
+});
+
+
+test("Tasks should be concurrently executable if 'concurrency' > 1", async (t)=>{
+  const queue = new PromiseQueue( 1, 2 );
+  queue.pause();
+
+  const taskA = queue.addTask( 0, async () => await new Promise(resolve => setTimeout(() => resolve("A"), 200)));
+  const taskB = queue.addTask( 0, async () => await new Promise(resolve => setTimeout(() => resolve("B"), 200)));
+
+  queue.resume();
+
+  const executedConcurrently = await Promise
+    .race([
+      Promise.all([taskA, taskB]).then(()=>true),
+      new Promise(resolve => setTimeout(() => resolve(false), 300))
+    ]);
+
+  t.ok( executedConcurrently, "Expected the tasks to be executed concurrently" );
 });
