@@ -1,6 +1,6 @@
 import assert = require("assert");
 import { EventEmitter } from "events";
-import StrictEmitter from "strict-event-emitter-types";
+import type StrictEmitter from "strict-event-emitter-types";
 
 type BucketQueueEntry<T = any> = {
   resolve: (taskResult: T) => void,
