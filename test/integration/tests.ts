@@ -39,14 +39,13 @@ test("It should be possible to add tasks to the queue when it is paused without 
 });
 
 test("It should execute tasks with highest priority first", async t => {
-  const queue = new PromiseQueue(2, 1);
+  const queue = new PromiseQueue(2);
   queue.pause();
 
-  const taskA = queue.addTask(1, createTask("A", 100));
-  const taskB = queue.addTask(0, createTask("B", 200));
+  const taskA = queue.addTask(1, createTask("A"));
+  const taskB = queue.addTask(0, createTask("B"));
 
   queue.resume();
-
 
   const executedTask = await Promise
     .race([
@@ -57,7 +56,7 @@ test("It should execute tasks with highest priority first", async t => {
 });
 
 test("It should execute tasks with identical priority in a FIFO manner", async t => {
-  const queue = new PromiseQueue(1, 1);
+  const queue = new PromiseQueue(1);
   queue.pause();
 
   const taskA = queue.addTask(0, createTask("A", 200));
@@ -75,7 +74,7 @@ test("It should execute tasks with identical priority in a FIFO manner", async t
 
 
 test("Tasks should be concurrently executable if 'concurrency' > 1", async t => {
-  const queue = new PromiseQueue(1, 2);
+  const queue = new PromiseQueue(2);
   queue.pause();
 
   const taskA = queue.addTask(0, createTask("A", 200));
@@ -94,7 +93,7 @@ test("Tasks should be concurrently executable if 'concurrency' > 1", async t => 
 });
 
 test("Tasks should not be executed concurrently if 'concurrency' = 1", async t => {
-  const queue = new PromiseQueue(1, 1);
+  const queue = new PromiseQueue(1);
   queue.pause();
 
   const taskA = queue.addTask(0, createTask("A", 200));
@@ -113,7 +112,7 @@ test("Tasks should not be executed concurrently if 'concurrency' = 1", async t =
 
 
 test("It should gracefully handle errors thrown in tasks by rejecting the task promise", async t => {
-  const queue = new PromiseQueue(1, 2);
+  const queue = new PromiseQueue(1);
 
   const task = queue.addTask(0, async() => await new Promise((resolve, reject) => setTimeout(reject, 10)));
 
