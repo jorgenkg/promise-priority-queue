@@ -1,5 +1,8 @@
+import * as fakeTimer from "@sinonjs/fake-timers";
 import * as test from "tape";
 import PromiseQueue from "../../index.js";
+
+const clock = fakeTimer.createClock(0);
 
 async function timeout<T>(fnOrPromise: Promise<T> | (() => Promise<T>), ms = 1000): Promise<T> {
   return Promise
@@ -9,15 +12,21 @@ async function timeout<T>(fnOrPromise: Promise<T> | (() => Promise<T>), ms = 100
     ]);
 }
 
-function createTask<T>(returns: T, delayMs = 100): () => Promise<T> {
-  return async() => await new Promise<T>(resolve => setTimeout(() => resolve(returns), delayMs));
+function createTask<T>(returns: T, delayMs = 100, useMockedClock = false): () => Promise<T> {
+  if(useMockedClock) {
+    return async() => await new Promise<T>(resolve => clock.setTimeout(() => resolve(returns), delayMs));
+  }
+  else {
+    return async() => await new Promise<T>(resolve => setTimeout(() => resolve(returns), delayMs));
+  }
 }
 
 
 test("It should be possible to add tasks to the queue and return the promised result of the task", async t => {
   const queue = new PromiseQueue();
   const result = "result value";
-  const taskFullfillmentPromise = queue.addTask(0, createTask(result));
+  const taskFullfillmentPromise = queue.addTask(0, createTask(result, 100, true));
+  await clock.tickAsync(100);
   t.equal(await timeout(taskFullfillmentPromise), result, "Expected the promise returned by addTask to resolve to the result from the task");
 });
 
@@ -26,8 +35,8 @@ test("It should be possible to add tasks to the queue when it is paused without 
   const queue = new PromiseQueue();
   queue.pause();
 
-  const taskFullfillmentPromise = queue.addTask(0, createTask(true));
-
+  const taskFullfillmentPromise = queue.addTask(0, createTask(true, 100, true));
+  await clock.tickAsync(100);
 
   const executedTask = await Promise
     .race([
@@ -39,13 +48,14 @@ test("It should be possible to add tasks to the queue when it is paused without 
 });
 
 test("It should execute tasks with highest priority first", async t => {
-  const queue = new PromiseQueue(2);
+  const queue = new PromiseQueue(1);
   queue.pause();
 
-  const taskA = queue.addTask(1, createTask("A"));
-  const taskB = queue.addTask(0, createTask("B"));
+  const taskA = queue.addTask(1, createTask("A", 100, true));
+  const taskB = queue.addTask(0, createTask("B", 100, true));
 
   queue.resume();
+  await clock.tickAsync(100);
 
   const executedTask = await Promise
     .race([
@@ -59,10 +69,11 @@ test("It should execute tasks with identical priority in a FIFO manner", async t
   const queue = new PromiseQueue(1);
   queue.pause();
 
-  const taskA = queue.addTask(0, createTask("A", 200));
-  const taskB = queue.addTask(0, createTask("B", 100));
+  const taskA = queue.addTask(0, createTask("A", 200, true));
+  const taskB = queue.addTask(0, createTask("B", 100, true));
 
   queue.resume();
+  await clock.tickAsync(200);
 
   const executedTask = await Promise
     .race([
@@ -77,16 +88,17 @@ test("Tasks should be concurrently executable if 'concurrency' > 1", async t => 
   const queue = new PromiseQueue(2);
   queue.pause();
 
-  const taskA = queue.addTask(0, createTask("A", 200));
-  const taskB = queue.addTask(0, createTask("B", 200));
+  const taskA = queue.addTask(0, createTask("A", 200, true));
+  const taskB = queue.addTask(0, createTask("B", 200, true));
 
   queue.resume();
+  await clock.tickAsync(200);
 
 
   const executedConcurrently = await Promise
     .race([
       Promise.all([taskA, taskB]).then(() => true),
-      new Promise(resolve => setTimeout(() => resolve(false), 300))
+      new Promise(resolve => setTimeout(() => resolve(false), 1))
     ]);
 
   t.ok(executedConcurrently, "Expected the tasks to be executed concurrently");
@@ -96,15 +108,16 @@ test("Tasks should not be executed concurrently if 'concurrency' = 1", async t =
   const queue = new PromiseQueue(1);
   queue.pause();
 
-  const taskA = queue.addTask(0, createTask("A", 200));
-  const taskB = queue.addTask(0, createTask("B", 200));
+  const taskA = queue.addTask(0, createTask("A", 200, true));
+  const taskB = queue.addTask(0, createTask("B", 200, true));
 
   queue.resume();
+  await clock.tickAsync(200);
 
   const executedConcurrently = await Promise
     .race([
       Promise.all([taskA, taskB]).then(() => true),
-      new Promise(resolve => setTimeout(() => resolve(false), 300))
+      new Promise(resolve => setTimeout(() => resolve(false), 1))
     ]);
 
   t.notOk(executedConcurrently, "Expected the tasks not to be executed concurrently");
@@ -114,7 +127,7 @@ test("Tasks should not be executed concurrently if 'concurrency' = 1", async t =
 test("It should gracefully handle errors thrown in tasks by rejecting the task promise", async t => {
   const queue = new PromiseQueue(1);
 
-  const task = queue.addTask(0, async() => await new Promise((resolve, reject) => setTimeout(reject, 10)));
+  const task = queue.addTask(0, () => Promise.reject());
 
   t.ok(await task.then(() => false).catch(() => true), "Expected the failing task to be rejected");
 });
