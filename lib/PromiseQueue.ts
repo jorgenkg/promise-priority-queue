@@ -12,7 +12,7 @@ export class PromiseQueue extends EventEmitter implements StrictEmitter<EventEmi
   error: (error: Error) => void
 }> {
   /** Number of tasks currently in the queue and awaiting completion. */
-  size = 0;
+  #size = 0;
   /** Flag indicating the queue is currently processing tasks. */
   #paused = false;
   /** Number of tasks currently being executed. */
@@ -51,7 +51,7 @@ export class PromiseQueue extends EventEmitter implements StrictEmitter<EventEmi
   async #processTasks(): Promise<void> {
     try {
       if (
-        this.#paused || this.#inflight >= this.concurrency || this.size === 0
+        this.#paused || this.#inflight >= this.concurrency || this.#size === 0
       ) {
         return;
       }
@@ -59,13 +59,13 @@ export class PromiseQueue extends EventEmitter implements StrictEmitter<EventEmi
       // Find the lowest index (ie highest priority) task.
       const priorityIndex = this.#bucketQueue.findIndex(entries => entries.length);
 
-      assert(priorityIndex >= 0, `Expected the queue to contain entries since the queue size is: ${this.size}`);
+      assert(priorityIndex >= 0, `Expected the queue to contain entries since the queue size is: ${this.#size}`);
 
       this.#inflight += 1;
 
       const nextTask = this.#bucketQueue?.[priorityIndex]?.shift() as BucketQueueEntry;
 
-      this.size -= 1;
+      this.#size -= 1;
 
       assert(nextTask, "Expected the item list to contain an entry since findIndex() returned != -1");
 
@@ -102,6 +102,11 @@ export class PromiseQueue extends EventEmitter implements StrictEmitter<EventEmi
     return this.#paused;
   }
 
+  /** Returns the number of uncompleted tasks on the queue. */
+  getSize(): number {
+    return this.#size;
+  }
+
   /** Add a prioritized task to the queue.
    * Note that a lower priority number means that the task will be prioritized.
    * Ie.: `0` is the highest priority value.
@@ -122,7 +127,7 @@ export class PromiseQueue extends EventEmitter implements StrictEmitter<EventEmi
     return await new Promise((resolve, reject) => {
       this.#bucketQueue[priority].push({ task, resolve, reject });
 
-      this.size += 1; // total queue size. Decreased within the async iterator.
+      this.#size += 1; // total queue size. Decreased within the async iterator.
 
       this.#emitter.emit("new-task");
     });
