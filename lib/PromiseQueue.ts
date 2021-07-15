@@ -106,10 +106,7 @@ export class PromiseQueue extends EventEmitter implements StrictEmitter<EventEmi
    * Note that a lower priority number means that the task will be prioritized.
    * Ie.: `0` is the highest priority value.
    */
-  async addTask<T extends(...args: any[]) => Promise<unknown>>(
-    priority: number,
-    task: T
-  ): Promise<T extends (...args: any[]) => Promise<infer r> ? r : never> {
+  async addTask<T>(priority: number, task: () => Promise<T>): Promise<T> {
     assert(priority >= 0, "Priority must be >= 0.");
 
     // If the priority references a bucket that hasn't been initialized we must
