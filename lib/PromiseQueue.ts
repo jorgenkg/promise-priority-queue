@@ -14,7 +14,7 @@ export class PromiseQueue extends EventEmitter implements StrictEmitter<EventEmi
   /** Number of tasks currently in the queue and awaiting completion. */
   size = 0;
   /** Flag indicating the queue is currently processing tasks. */
-  PAUSE = false;
+  #paused = false;
   /** Number of tasks currently being executed. */
   #inflight = 0;
 
@@ -51,7 +51,7 @@ export class PromiseQueue extends EventEmitter implements StrictEmitter<EventEmi
   async #processTasks(): Promise<void> {
     try {
       if (
-        this.PAUSE || this.#inflight >= this.concurrency || this.size === 0
+        this.#paused || this.#inflight >= this.concurrency || this.size === 0
       ) {
         return;
       }
@@ -63,8 +63,8 @@ export class PromiseQueue extends EventEmitter implements StrictEmitter<EventEmi
 
       this.#inflight += 1;
 
-      const priorityItems = this.#bucketQueue[priorityIndex];
-      const nextTask = priorityItems.shift() as BucketQueueEntry;
+      const nextTask = this.#bucketQueue?.[priorityIndex]?.shift() as BucketQueueEntry;
+
       this.size -= 1;
 
       assert(nextTask, "Expected the item list to contain an entry since findIndex() returned != -1");
@@ -88,13 +88,18 @@ export class PromiseQueue extends EventEmitter implements StrictEmitter<EventEmi
 
   /** Pause queue execution */
   pause(): void {
-    this.PAUSE = true;
+    this.#paused = true;
   }
 
   /** Resume queue execution */
   resume(): void {
-    this.PAUSE = false;
+    this.#paused = false;
     this.#emitter.emit("resume");
+  }
+
+  /** Whether the task processing is currently paused. */
+  isPaused(): boolean {
+    return this.#paused;
   }
 
   /** Add a prioritized task to the queue.
