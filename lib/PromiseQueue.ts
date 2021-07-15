@@ -1,10 +1,10 @@
 import assert = require("assert");
 import { EventEmitter } from "events";
 
-type BucketQueueEntry = {
-  resolve: (taskResult: any) => void,
+type BucketQueueEntry<T = any> = {
+  resolve: (taskResult: T) => void,
   reject: (error: Error) => void,
-  task: () => Promise<unknown>
+  task: () => Promise<T>
 }
 
 export class PromiseQueue extends EventEmitter {
@@ -28,52 +28,14 @@ export class PromiseQueue extends EventEmitter {
     this.PAUSE = false;
     this.bucketQueue = new Array(bucketCount).fill(0).map(() => []);
 
-    this.#initialize();
-  }
-
-  #initialize(): void {
-    const that = this;
-    // Initialize an iterator (object) which will yield tasks to execute. The iterator is
-    // async and will be "waiting" on additional tasks to be added to the queue
-    const nextTask = (async function* nextTaskGenerator() {
-      while (true) {
-        if (that.size === 0) {
-          // If there are no tasks on the queue, wait for additional tasks to be added.
-          await new Promise(resolve => that.once("new-task", resolve));
-        }
-
-        if (that.PAUSE) {
-          await new Promise(resolve => that.once("resume", resolve));
-        }
-
-        for (let i = that.low; i < that.bucketCount; i++) {
-          // Loop the indexes of our priority queue, starting at "low" (the most
-          // important task we've seen)
-          if (that.bucketQueue[i].length > 0) {
-            // When the condition is met, we've found the the new "lower limit" on
-            // task priority. Note that a low priority is better.
-            that.low = i;
-
-            that.size -= 1;
-            yield that.bucketQueue[i].pop();
-
-            // Return to the 'while loop' since the next task to yield might be at a
-            // new priority index. That happens if new tasks have added to the queue
-            // with a lower priority.
-            break;
-          }
-        }
-      }
-    }).bind(this)() as AsyncGenerator<BucketQueueEntry>;
-
-    // This is the "main loop". This is where we pick prioritized tasks from the queue.
+    // This is the "main loop" prioritized tasks are picked from the queue.
     setImmediate(async() => {
       try {
         // "inflight" describes the number of tasks currently being executed
         let inflight = 0;
 
         // Loop the async iterator "nextTask"
-        for await (const { task, resolve, reject } of nextTask) {
+        for await (const { task, resolve, reject } of this.#getTaskGenerator()) {
           inflight += 1;
 
           setImmediate(async() => {
@@ -99,6 +61,42 @@ export class PromiseQueue extends EventEmitter {
         this.emit("error", error);
       }
     });
+  }
+
+  /** Initialize an iterator (object) which will yield tasks to execute. The iterator is
+   * async and will be "waiting" on additional tasks to be added to the queue.
+   */
+  #getTaskGenerator(): AsyncGenerator<BucketQueueEntry> {
+    return (async function* (this: PromiseQueue) {
+      while (true) {
+        if (this.size === 0) {
+          // If there are no tasks on the queue, wait for additional tasks to be added.
+          await new Promise(resolve => this.once("new-task", resolve));
+        }
+
+        if (this.PAUSE) {
+          await new Promise(resolve => this.once("resume", resolve));
+        }
+
+        for (let i = this.low; i < this.bucketCount; i++) {
+          // Loop the indexes of our priority queue, starting at "low" (the most
+          // important task we've seen)
+          if (this.bucketQueue[i].length) {
+            // When the condition is met, we've found the the new "lower limit" on
+            // task priority. Note that a low priority is better.
+            this.low = i;
+            this.size -= 1;
+
+            yield this.bucketQueue[i].pop() as BucketQueueEntry;
+
+            // Return to the 'while loop' since the next task to yield might be at a
+            // new priority index. That happens if new tasks have added to the queue
+            // with a lower priority.
+            break;
+          }
+        }
+      }
+    }).bind(this)();
   }
 
   pause() {
