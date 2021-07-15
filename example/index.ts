@@ -8,9 +8,9 @@ import PromiseQueue from "../index.js";
   queue.pause();
 
   // Add a task that returns "A" after 100ms
-  const taskA = queue.addTask(1, async() => await new Promise(resolve => setTimeout(() => resolve("A"), 100)));
+  const taskA = queue.addTask(1, async() => await new Promise<string>(resolve => setTimeout(() => resolve("A"), 100)));
   // Add a higher priority task that returns "B" after 200ms.
-  const taskB = queue.addTask(0, async() => await new Promise(resolve => setTimeout(() => resolve("B"), 200)));
+  const taskB = queue.addTask(0, async() => await new Promise<string>(resolve => setTimeout(() => resolve("B"), 200)));
 
   // Restart the queue now that the elements have been added.
   queue.resume();
