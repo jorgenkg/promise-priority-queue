@@ -1,26 +1,10 @@
 import * as fakeTimer from "@sinonjs/fake-timers";
 import * as test from "tape";
+import { createTask } from "../test-helpers/createTask";
+import { timeout } from "../test-helpers/timeout";
 import PromiseQueue from "../../index.js";
 
-const clock = fakeTimer.createClock(0);
-
-async function timeout<T>(fnOrPromise: Promise<T> | (() => Promise<T>), ms = 1000): Promise<T> {
-  return Promise
-    .race([
-      typeof fnOrPromise === "function" ? fnOrPromise() : fnOrPromise,
-      new Promise<T>((resolve, reject) => setTimeout(() => reject("timeout"), ms).unref())
-    ]);
-}
-
-function createTask<T>(returns: T, delayMs = 100, useMockedClock = false): () => Promise<T> {
-  if(useMockedClock) {
-    return async() => await new Promise<T>(resolve => clock.setTimeout(() => resolve(returns), delayMs));
-  }
-  else {
-    return async() => await new Promise<T>(resolve => setTimeout(() => resolve(returns), delayMs));
-  }
-}
-
+export const clock = fakeTimer.createClock(0);
 
 test("It should be possible to add tasks to the queue and return the promised result of the task", async t => {
   const queue = new PromiseQueue();
