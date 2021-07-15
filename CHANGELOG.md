@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.0.0](https://github.com/jorgenkg/promise-priority-queue/compare/v3.0.0...v4.0.0) (2021-07-15)
+
+
+### ⚠ BREAKING CHANGES
+
+* removed all-caps PAUSE flag and replaced it by a `isPaused()` getter fn.
+
+### Bug Fixes
+
+* renamed PAUSE -> isPaused() ([d0ac713](https://github.com/jorgenkg/promise-priority-queue/commit/d0ac7137a116f70a515d40e7c0abbd9d920d57e6))
+
 ## [3.0.0](https://github.com/jorgenkg/promise-priority-queue/compare/v2.0.0...v3.0.0) (2021-07-15)
 
 
