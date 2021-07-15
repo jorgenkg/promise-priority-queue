@@ -2,7 +2,7 @@ import assert = require("assert");
 import PromiseQueue from "../index.js";
 
 (async() => {
-  const queue = new PromiseQueue(2);
+  const queue = new PromiseQueue(1);
 
   // Pause the queue execution for testing purposes to prevent it from processing the tasks.
   queue.pause();
