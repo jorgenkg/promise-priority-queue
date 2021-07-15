@@ -11,19 +11,25 @@ type BucketQueueEntry<T = any> = {
 export class PromiseQueue extends EventEmitter implements StrictEmitter<EventEmitter, {
   error: (error: Error) => void
 }> {
+  /** Number of tasks currently in the queue and awaiting completion. */
   size = 0;
-  inflight = 0;
+  /** Flag indicating the queue is currently processing tasks. */
   PAUSE = false;
+  /** Number of tasks currently being executed. */
+  #inflight = 0;
 
-  readonly bucketQueue: BucketQueueEntry[][] = [];
+  readonly #bucketQueue: BucketQueueEntry[][] = [];
+
+  /** Internal signalling. Used to trigger queue processing. */
   readonly #emitter: StrictEmitter<EventEmitter, {
     "new-task": () => void,
     "complete": () => void,
-    "resume": () => void,
-    "pause": () => void,
+    "resume": () => void
   }> = new EventEmitter();
 
   constructor(
+    /** The number of tasks that will be executed concurrently.
+     * Note that if concurrency > 1, the queue cannot guarantee FIFO since the tasks' execution times may vary. */
     readonly concurrency = 1
   ) {
     super();
@@ -34,36 +40,46 @@ export class PromiseQueue extends EventEmitter implements StrictEmitter<EventEmi
     this.#emitter.on("complete", this.#processTasks.bind(this));
     this.#emitter.on("resume", () => {
       // The queue may process multiple tasks concurrently upon resuming.
-      const availableCapacity = this.concurrency - this.inflight;
+      const availableCapacity = this.concurrency - this.#inflight;
       for(let i = 0;i < availableCapacity;i++) {
         void this.#processTasks();
       }
     });
   }
 
+  /** Pick and execute the highest priority task. */
   async #processTasks(): Promise<void> {
     try {
       if (
-        this.PAUSE ||
-      this.inflight >= this.concurrency
+        this.PAUSE || this.#inflight >= this.concurrency || this.size === 0
       ) {
         return;
       }
 
-      this.inflight += 1;
+      // Find the lowest index (ie highest priority) task.
+      const priorityIndex = this.#bucketQueue.findIndex(entries => entries.length);
 
-      const priorityIndex = this.bucketQueue
-        .findIndex(entries => entries.length);
+      assert(priorityIndex >= 0, `Expected the queue to contain entries since the queue size is: ${this.size}`);
 
-      if(priorityIndex >= 0 && this.bucketQueue[priorityIndex]?.length) {
-        const priorityItems = this.bucketQueue[priorityIndex];
-        this.size -= 1;
-        const { task, resolve, reject } = priorityItems.shift() as BucketQueueEntry;
-        await task().then(resolve, reject);
+      this.#inflight += 1;
 
-        this.inflight -= 1;
-        this.#emitter.emit("complete");
+      const priorityItems = this.#bucketQueue[priorityIndex];
+      const nextTask = priorityItems.shift() as BucketQueueEntry;
+      this.size -= 1;
+
+      assert(nextTask, "Expected the item list to contain an entry since findIndex() returned != -1");
+
+      const { task, resolve, reject } = nextTask;
+
+      try {
+        resolve(await task());
       }
+      catch(error) {
+        reject(error);
+      }
+
+      this.#inflight -= 1;
+      this.#emitter.emit("complete");
     }
     catch(error) {
       this.emit("error", error);
@@ -73,7 +89,6 @@ export class PromiseQueue extends EventEmitter implements StrictEmitter<EventEmi
   /** Pause queue execution */
   pause(): void {
     this.PAUSE = true;
-    this.#emitter.emit("pause");
   }
 
   /** Resume queue execution */
@@ -82,7 +97,10 @@ export class PromiseQueue extends EventEmitter implements StrictEmitter<EventEmi
     this.#emitter.emit("resume");
   }
 
-  /** Add a prioritized task to the queue. */
+  /** Add a prioritized task to the queue.
+   * Note that a lower priority number means that the task will be prioritized.
+   * Ie.: `0` is the highest priority value.
+   */
   async addTask<T extends(...args: any[]) => Promise<unknown>>(
     priority: number,
     task: T
@@ -91,16 +109,16 @@ export class PromiseQueue extends EventEmitter implements StrictEmitter<EventEmi
 
     // If the priority references a bucket that hasn't been initialized we must
     // initialize all the buckets at indices 0 -> priority.
-    if(priority >= this.bucketQueue.length) {
-      const fillers = new Array(priority - this.bucketQueue.length + 1)
+    if(priority >= this.#bucketQueue.length) {
+      const fillers = new Array(priority - this.#bucketQueue.length + 1)
         .fill(0)
         .map(() => []);
 
-      this.bucketQueue.push(...fillers);
+      this.#bucketQueue.push(...fillers);
     }
 
     return await new Promise((resolve, reject) => {
-      this.bucketQueue[priority].push({ task, resolve, reject });
+      this.#bucketQueue[priority].push({ task, resolve, reject });
 
       this.size += 1; // total queue size. Decreased within the async iterator.
 
