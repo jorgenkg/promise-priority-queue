@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [5.0.0](https://github.com/jorgenkg/promise-priority-queue/compare/v4.0.0...v5.0.0) (2021-07-15)
+
+
+### ⚠ BREAKING CHANGES
+
+* replaced the parameter `size` with the getter function `getSize()`
+
+### Bug Fixes
+
+* remove size property and replace it with getSize() ([04fd9c3](https://github.com/jorgenkg/promise-priority-queue/commit/04fd9c3c8b38ee979de848f76003048e4f346a44))
+* task fn should not accept arguments ([a0706ea](https://github.com/jorgenkg/promise-priority-queue/commit/a0706ea269c9147eb00007dd4c2364c3036b4eb6))
+
 ## [4.0.0](https://github.com/jorgenkg/promise-priority-queue/compare/v3.0.0...v4.0.0) (2021-07-15)
 
 
