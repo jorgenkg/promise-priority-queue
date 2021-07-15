@@ -1,5 +1,6 @@
 import assert = require("assert");
 import { EventEmitter } from "events";
+import StrictEmitter from "strict-event-emitter-types";
 
 type BucketQueueEntry<T = any> = {
   resolve: (taskResult: T) => void,
@@ -7,34 +8,20 @@ type BucketQueueEntry<T = any> = {
   task: () => Promise<T>
 }
 
-export class PromiseQueue extends EventEmitter {
+export class PromiseQueue extends EventEmitter implements StrictEmitter<EventEmitter, {
+  error: (error: Error) => void
+}> {
   size = 0;
+  inflight = 0;
   PAUSE = false;
 
   readonly bucketQueue: BucketQueueEntry[][] = [];
-
-  readonly #taskGenerator: AsyncGenerator<BucketQueueEntry> = (async function* (this: PromiseQueue) {
-    while (true) {
-      if (this.size === 0) {
-        // If there are no tasks on the queue, wait for additional tasks to be added.
-        await new Promise(resolve => this.once("new-task", resolve));
-      }
-
-      if (this.PAUSE) {
-        await new Promise(resolve => this.once("resume", resolve));
-      }
-
-      const priorityIndex = this.bucketQueue
-        .findIndex(entries => entries.length);
-
-      if(priorityIndex >= 0 && this.bucketQueue[priorityIndex]?.length) {
-        const priorityItems = this.bucketQueue[priorityIndex];
-        this.size -= 1;
-        yield priorityItems.shift() as BucketQueueEntry;
-      }
-
-    }
-  }).bind(this)();
+  readonly #emitter: StrictEmitter<EventEmitter, {
+    "new-task": () => void,
+    "complete": () => void,
+    "resume": () => void,
+    "pause": () => void,
+  }> = new EventEmitter();
 
   constructor(
     readonly concurrency = 1
@@ -43,48 +30,56 @@ export class PromiseQueue extends EventEmitter {
 
     assert(concurrency > 0, "'concurrency' must be greater than 0");
 
-    // This is the "main loop" prioritized tasks are picked from the queue.
-    setImmediate(async() => {
-      try {
-        // "inflight" describes the number of tasks currently being executed
-        let inflight = 0;
-
-        // Loop the async iterator "nextTask"
-        for await (const { task, resolve, reject } of this.#taskGenerator) {
-          inflight += 1;
-
-          // Intentionally not awaiting this promise chain such that multiple
-          // tasks may be started concurrently.
-          void task()
-            .then(resolve, reject)
-            .then(() => {
-              inflight -= 1;
-              this.emit("complete");
-            });
-
-          if (inflight >= this.concurrency) {
-            // We're at the threshold of our concurrency limit. We won't process another
-            // task until some of the tasks has completed
-            await new Promise(resolveEvent => this.once("complete", resolveEvent));
-          }
-        }
-      }
-      catch (error) {
-        this.emit("error", error);
+    this.#emitter.on("new-task", this.#processTasks.bind(this));
+    this.#emitter.on("complete", this.#processTasks.bind(this));
+    this.#emitter.on("resume", () => {
+      // The queue may process multiple tasks concurrently upon resuming.
+      const availableCapacity = this.concurrency - this.inflight;
+      for(let i = 0;i < availableCapacity;i++) {
+        void this.#processTasks();
       }
     });
+  }
+
+  async #processTasks(): Promise<void> {
+    try {
+      if (
+        this.PAUSE ||
+      this.inflight >= this.concurrency
+      ) {
+        return;
+      }
+
+      this.inflight += 1;
+
+      const priorityIndex = this.bucketQueue
+        .findIndex(entries => entries.length);
+
+      if(priorityIndex >= 0 && this.bucketQueue[priorityIndex]?.length) {
+        const priorityItems = this.bucketQueue[priorityIndex];
+        this.size -= 1;
+        const { task, resolve, reject } = priorityItems.shift() as BucketQueueEntry;
+        await task().then(resolve, reject);
+
+        this.inflight -= 1;
+        this.#emitter.emit("complete");
+      }
+    }
+    catch(error) {
+      this.emit("error", error);
+    }
   }
 
   /** Pause queue execution */
   pause(): void {
     this.PAUSE = true;
-    this.emit("pause");
+    this.#emitter.emit("pause");
   }
 
   /** Resume queue execution */
   resume(): void {
     this.PAUSE = false;
-    this.emit("resume");
+    this.#emitter.emit("resume");
   }
 
   /** Add a prioritized task to the queue. */
@@ -109,7 +104,7 @@ export class PromiseQueue extends EventEmitter {
 
       this.size += 1; // total queue size. Decreased within the async iterator.
 
-      this.emit("new-task");
+      this.#emitter.emit("new-task");
     });
   }
 }
