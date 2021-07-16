@@ -1,8 +1,6 @@
 # Promise Priority Queue
 
-A promisified bucket priority queue ([wikipedia](https://en.wikipedia.org/wiki/Bucket_queue)) written in Typescript with no external dependencies. 
-
-This queue might help you to execute high volumes of work, while prioritizing certain events like answering a health check from Kubernetes.
+A promisified bucket priority queue written in Typescript with no external dependencies. 
 
 ## Requirements
 
@@ -34,4 +32,6 @@ const result: number = await queue.addTask( priority, task ); // resolves with t
 ## API
 
 #### [Documentation is available here](https://jorgenkg.github.io/promise-priority-queue/)
+
+Deep link to the [PromiseQueue class](https://jorgenkg.github.io/promise-priority-queue/classes/lib_PromiseQueue.PromiseQueue.html)
 
