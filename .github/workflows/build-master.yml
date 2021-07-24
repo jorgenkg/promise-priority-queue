@@ -42,10 +42,11 @@ jobs:
       uses: actions/setup-node@v2
     - name: Generate standard version changelog
       run: |
-  
+        npm ci
         npx standard-version --skip.commit --skip.tag
         UPDATED_VERSION=$(jq '.version' --raw-output package.json)
         npx changelog-parser | jq --raw-output --arg UPDATED_VERSION "$UPDATED_VERSION" '.versions[] | select(.version==$UPDATED_VERSION).body | if . != "" then . else "[[empty]]" end'
+  
   release:
     needs: build
     name: Create release
