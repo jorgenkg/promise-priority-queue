@@ -40,7 +40,7 @@ jobs:
       uses: actions/setup-node@v2
     - name: Generate standard version changelog
       run: |
-        npx standard-version
+        npx standard-version --skip.bump --skip.commit --skip.tag
         npx changelog-parser | jq --raw-output '.versions[0].body'
   
   release:
