@@ -36,6 +36,8 @@ jobs:
     steps:
     - name: Check out repository code
       uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
     - name: Use Node.js
       uses: actions/setup-node@v2
     - name: Generate standard version changelog
