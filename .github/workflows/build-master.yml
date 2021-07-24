@@ -27,6 +27,19 @@ jobs:
     - name: Run tests
       run: npm run test --if-present
   
+  echoPendingChangelog:
+    name: Render pending changelog
+    runs-on: ubuntu-latest
+    needs: build
+    defaults:
+      run:
+        shell: bash
+      steps:
+      - name: Generate standard version changelog
+        run: |
+          npx standard-version
+          npx changelog-parser | jq --raw-output '.versions[0].body'
+  
   release:
     needs: build
     name: Create release

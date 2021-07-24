@@ -1,0 +1,13 @@
+diff --git a/node_modules/changelog-parser/index.js b/node_modules/changelog-parser/index.js
+index a14d61d..9ec783f 100644
+--- a/node_modules/changelog-parser/index.js
++++ b/node_modules/changelog-parser/index.js
+@@ -116,7 +116,7 @@ function handleLine (options, line) {
+   }
+ 
+   // new version found!
+-  if (line.match(/^##? ?[^#]/)) {
++  if (line.match(/^###? \[\d/)) {
+     if (this.current && this.current.title) pushCurrent(this)
+ 
+     this.current = versionFactory()
