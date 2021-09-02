@@ -4,7 +4,7 @@
   "description": "",
   "main": "dist/index.js",
   "scripts": {
-    "prepare": "npx patch-package",
+    "prepare": "npx patch-package && npx husky install",
     "test": "npx tape --enable-source-maps --unhandled-rejections=strict dist/test/integration/*.js",
     "dist": "rm -rf dist/ && npx tsc --build tsconfig.prod.json",
     "release": "npm run dist && npx standard-version -a",
