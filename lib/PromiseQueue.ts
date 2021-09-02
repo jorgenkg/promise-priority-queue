@@ -74,7 +74,7 @@ export class PromiseQueue extends EventEmitter implements StrictEmitter<EventEmi
       try {
         resolve(await task());
       }
-      catch(error) {
+      catch(error: any) {
         reject(error);
       }
 
