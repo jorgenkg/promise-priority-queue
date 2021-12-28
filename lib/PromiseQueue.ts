@@ -127,7 +127,7 @@ export class PromiseQueue extends EventEmitter implements StrictEmitter<EventEmi
     return await new Promise((resolve, reject) => {
       this.#bucketQueue[priority].push({ task, resolve, reject });
 
-      this.#size += 1; // total queue size. Decreased within the async iterator.
+      this.#size += 1;
 
       this.#emitter.emit("new-task");
     });

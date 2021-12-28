@@ -1,4 +1,4 @@
-import { clock } from "../integration/tests";
+import { clock } from "../integration/tests.js";
 
 export function createTask<T>(returns: T, delayMs = 100, useMockedClock = false): () => Promise<T> {
   if (useMockedClock) {
