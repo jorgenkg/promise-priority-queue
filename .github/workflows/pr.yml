@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [8, "9.8", 10, 11, 12, 13, 14, 15, 16, 17]
+        node-version: [8, 10, 11, 12, 13, 14, 15, 16, 17]
     steps:
     - name: Check out repository code
       uses: actions/checkout@v2
