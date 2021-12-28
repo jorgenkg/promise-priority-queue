@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [5.1.0](https://github.com/jorgenkg/promise-priority-queue/compare/v5.0.1...v5.1.0) (2021-12-28)
+
+
+### Features
+
+* add declaration map for ts files ([9618ea1](https://github.com/jorgenkg/promise-priority-queue/commit/9618ea124c4dcaad7d93fd35532cf25ff39ff92e))
+
+
+### Bug Fixes
+
+* update dependencies ([d5a1ac5](https://github.com/jorgenkg/promise-priority-queue/commit/d5a1ac51f6a540ab071b2bef06de54c91fd3cb5d))
+
 ### [5.0.1](https://github.com/jorgenkg/promise-priority-queue/compare/v5.0.0...v5.0.1) (2021-07-24)
 
 ## [5.0.0](https://github.com/jorgenkg/promise-priority-queue/compare/v4.0.0...v5.0.0) (2021-07-15)
