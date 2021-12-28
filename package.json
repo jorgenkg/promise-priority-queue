@@ -20,7 +20,7 @@
   ],
   "license": "MIT",
   "engines": {
-    "node": ">=12.0"
+    "node": ">=8.9.0"
   },
   "files": [
     "dist/lib",
@@ -31,24 +31,26 @@
     "url": "https://github.com/jorgenkg/promise-priority-queue.git"
   },
   "devDependencies": {
-    "@commitlint/cli": "15.0.0",
-    "@commitlint/config-conventional": "15.0.0",
+    "@commitlint/cli": "16.0.1",
+    "@commitlint/config-conventional": "16.0.0",
     "@sinonjs/fake-timers": "8.1.0",
     "@types/debug": "4.1.7",
-    "@types/node": "16.11.11",
+    "@types/node": "17.0.5",
+    "@types/sinonjs__fake-timers": "^8.1.1",
     "@types/tape": "4.13.2",
-    "@typescript-eslint/eslint-plugin": "5.5.0",
-    "@typescript-eslint/parser": "5.5.0",
+    "@typescript-eslint/eslint-plugin": "5.8.1",
+    "@typescript-eslint/parser": "5.8.1",
     "babel-eslint": "10.1.0",
     "changelog-parser": "2.8.0",
-    "eslint": "8.3.0",
+    "eslint": "8.5.0",
     "eslint-plugin-sort-imports-es6-autofix": "0.6.0",
     "husky": "7.0.4",
     "patch-package": "6.4.7",
     "standard-version": "9.3.2",
     "strict-event-emitter-types": "2.0.0",
-    "tape": "5.3.2",
+    "tape": "5.4.0",
     "typedoc": "0.22.10",
-    "typescript": "4.5.2"
+    "typedoc-plugin-missing-exports": "0.22.6",
+    "typescript": "4.5.4"
   }
 }
