@@ -1,16 +1,16 @@
-import assert = require("assert");
+import * as assert from "assert";
 import PromiseQueue from "../index.js";
 
 (async() => {
-  const queue = new PromiseQueue(1);
+  const queue = new PromiseQueue();
 
   // Pause the queue execution for testing purposes to prevent it from processing the tasks.
   queue.pause();
 
   // Add a task that returns "A" after 100ms
-  const taskA = queue.addTask(1, async() => await new Promise<string>(resolve => setTimeout(() => resolve("A"), 100)));
+  const taskA = queue.addTask(1, () => new Promise<string>(resolve => setTimeout(() => resolve("A"), 100)));
   // Add a higher priority task that returns "B" after 200ms.
-  const taskB = queue.addTask(0, async() => await new Promise<string>(resolve => setTimeout(() => resolve("B"), 200)));
+  const taskB = queue.addTask(0, () => new Promise<string>(resolve => setTimeout(() => resolve("B"), 200)));
 
   // Restart the queue now that the elements have been added.
   queue.resume();

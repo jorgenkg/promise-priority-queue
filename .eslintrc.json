@@ -8,8 +8,7 @@
     "extends": [
       "eslint:recommended",
       "plugin:@typescript-eslint/eslint-recommended",
-      "plugin:@typescript-eslint/recommended",
-      "plugin:@typescript-eslint/recommended-requiring-type-checking"
+      "plugin:@typescript-eslint/recommended",      "plugin:@typescript-eslint/recommended-requiring-type-checking"
     ],
     "plugins": [
       "sort-imports-es6-autofix"
@@ -171,10 +170,6 @@
       "eqeqeq": "error",
       // Prefer dot notation referencing in object notation. Eg: object["somekey"] => object.somekey
       "dot-notation": "warn",
-      // Require the dot notation to appear on the same line as the object, eg:
-      // NOT:           INSTEAD:
-      // someobject.    someobject
-      //    somekey       .somekey
       // Require curly brackets on all if/else/for statements
       "curly": "error",
       "@typescript-eslint/no-misused-promises": [
@@ -182,7 +177,6 @@
         {
           "checksVoidReturn": false
         }
-      ],
-      "@typescript-eslint/camelcase": "off"
+      ]
     }
   }

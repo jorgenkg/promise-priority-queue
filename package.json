@@ -4,12 +4,13 @@
   "description": "",
   "main": "dist/index.js",
   "scripts": {
-    "prepare": "npx patch-package && npx husky install",
-    "test": "npx tape --enable-source-maps --unhandled-rejections=strict dist/test/integration/*.js",
+    "prepare": "./node_modules/.bin/patch-package && ./node_modules/.bin/husky install",
+    "test": "./node_modules/.bin/tape --enable-source-maps --unhandled-rejections=strict dist/test/integration/*.js",
     "dist": "rm -rf dist/ && npx tsc --build tsconfig.prod.json",
     "release": "npm run dist && npx standard-version -a",
     "generate-docs": "npx typedoc --excludePrivate --hideGenerator --includeVersion --readme ./README.md --out docs index.ts lib"
   },
+  "type": "commonjs",
   "author": "Jørgen Grimnes",
   "bugs": "https://github.com/jorgenkg/promise-priority-queue/issues",
   "keywords": [
@@ -20,8 +21,9 @@
   ],
   "license": "MIT",
   "engines": {
-    "node": ">=8.9.0"
+    "node": ">=5"
   },
+  "engineStrict": true,
   "files": [
     "dist/lib",
     "dist/index*"
@@ -40,7 +42,6 @@
     "@types/tape": "4.13.2",
     "@typescript-eslint/eslint-plugin": "5.8.1",
     "@typescript-eslint/parser": "5.8.1",
-    "babel-eslint": "10.1.0",
     "changelog-parser": "2.8.0",
     "eslint": "8.5.0",
     "eslint-plugin-sort-imports-es6-autofix": "0.6.0",

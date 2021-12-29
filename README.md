@@ -4,7 +4,7 @@ A promisified bucket priority queue written in Typescript with no external depen
 
 ## Requirements
 
-* `node >= 12.0`
+* `node >= 8.9`
 
 ## Installation
 
@@ -18,7 +18,7 @@ npm i -S promise-priority-queue
 import PromiseQueue from 'promise-priority-queue';
 
 const concurrency = 10;
-const queue = new PromiseQueue( concurrency /** optional */ );
+const queue = new PromiseQueue({ concurrency /** optional */ });
 const priority = 1;
 const task = async (): number => {
   // do work

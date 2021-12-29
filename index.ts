@@ -1,3 +1,1 @@
-export {PromiseQueue} from "./lib/PromiseQueue";
-import {PromiseQueue} from "./lib/PromiseQueue";
-export default PromiseQueue;
+export { PromiseQueue, PromiseQueue as default } from "./lib/PromiseQueue";
