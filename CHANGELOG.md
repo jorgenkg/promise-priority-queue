@@ -7,7 +7,7 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### ⚠ BREAKING CHANGES
 
-* add support for node v5 to v17 and refactor PromiseQueue constructor arguments
+* The PromiseQueue() constructor now accepts an object of options instead of multiple arguments. The new object argument is optional.
 
 ### Bug Fixes
 
