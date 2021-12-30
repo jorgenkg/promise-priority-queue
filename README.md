@@ -4,7 +4,7 @@ A promisified bucket priority queue written in Typescript with no external depen
 
 ## Requirements
 
-* `node >= 8.9`
+* `node >= 5.0`
 
 ## Installation
 
