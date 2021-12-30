@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [6.0.0](https://github.com/jorgenkg/promise-priority-queue/compare/v5.1.0...v6.0.0) (2021-12-30)
+
+
+### ⚠ BREAKING CHANGES
+
+* add support for node v5 to v17 and refactor PromiseQueue constructor arguments
+
+### Bug Fixes
+
+* add support for node v5 to v17 and refactor PromiseQueue constructor arguments ([941725d](https://github.com/jorgenkg/promise-priority-queue/commit/941725dba21adc3ffc8c3a2cd193758547789527))
+
 ## [5.1.0](https://github.com/jorgenkg/promise-priority-queue/compare/v5.0.1...v5.1.0) (2021-12-28)
 
 
