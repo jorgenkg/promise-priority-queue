@@ -68,6 +68,23 @@ test("It should execute tasks with identical priority in a FIFO manner", async t
 });
 
 
+test("All tasks should complete if over the concurrency limit", async t => {
+  const queue = new PromiseQueue({ concurrency: 2 });
+  queue.pause();
+
+  const taskA = queue.addTask(0, createTask("A", 100, clock));
+  const taskB = queue.addTask(0, createTask("B", 100, clock));
+  const taskC = queue.addTask(0, createTask("C", 100, clock));
+
+  queue.resume();
+
+  await clock.tickAsync(300);
+
+  const allFinished = await Promise.all([taskA, taskB, taskC]).then(() => true);
+
+  t.ok(allFinished, "Expected the tasks to be executed concurrently");
+});
+
 test("Tasks should be concurrently executable if 'concurrency' > 1", async t => {
   const queue = new PromiseQueue({ concurrency: 2 });
   queue.pause();
