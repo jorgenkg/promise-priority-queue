@@ -70,7 +70,7 @@ export class PromiseQueue {
     // unnecessarily complex ES3 compatible code.
     task()
       .then(resolve, reject)
-      .catch(() => {
+      .finally(() => {
         this.inflight -= 1;
         this.emitter.emit("complete");
       });
@@ -95,6 +95,11 @@ export class PromiseQueue {
   /** Returns the number of uncompleted tasks on the queue. */
   getSize(): number {
     return this.size;
+  }
+
+  /** Returns the number of tasks that are currently inflight. */
+  getInflight() {
+    return this.inflight;
   }
 
   /** Add a prioritized task to the queue.
