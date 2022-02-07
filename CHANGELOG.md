@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [6.0.1](https://github.com/jorgenkg/promise-priority-queue/compare/v6.0.0...v6.0.1) (2022-02-07)
+
+
+### Bug Fixes
+
+* issue with queue not being processed ([8c26d3e](https://github.com/jorgenkg/promise-priority-queue/commit/8c26d3ecea46753854402d4737ee1fbd5598025e))
+
 ## [6.0.0](https://github.com/jorgenkg/promise-priority-queue/compare/v5.1.0...v6.0.0) (2021-12-30)
 
 
