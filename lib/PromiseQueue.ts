@@ -70,7 +70,9 @@ export class PromiseQueue {
     // unnecessarily complex ES3 compatible code.
     task()
       .then(resolve, reject)
-      .finally(() => {
+      // Mimic .finally() by chaining .catch().then()
+      .catch(() => void 0)
+      .then(() => {
         this.inflight -= 1;
         this.emitter.emit("complete");
       });
