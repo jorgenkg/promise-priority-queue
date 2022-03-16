@@ -33,7 +33,7 @@
     "url": "https://github.com/jorgenkg/promise-priority-queue.git"
   },
   "devDependencies": {
-    "@commitlint/cli": "16.2.1",
+    "@commitlint/cli": "16.2.3",
     "@commitlint/config-conventional": "16.2.1",
     "@sinonjs/fake-timers": "9.1.1",
     "@types/debug": "4.1.7",
