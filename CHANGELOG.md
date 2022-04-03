@@ -2,6 +2,8 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [6.0.4](https://github.com/jorgenkg/promise-priority-queue/compare/v6.0.3...v6.0.4) (2022-04-03)
+
 ### [6.0.3](https://github.com/jorgenkg/promise-priority-queue/compare/v6.0.0...v6.0.3) (2022-02-07)
 
 
