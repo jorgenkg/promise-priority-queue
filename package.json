@@ -45,7 +45,7 @@
     "changelog-parser": "2.8.1",
     "eslint": "8.31.0",
     "eslint-plugin-sort-imports-es6-autofix": "0.6.0",
-    "husky": "7.0.4",
+    "husky": "8.0.3",
     "patch-package": "6.5.1",
     "standard-version": "9.5.0",
     "strict-event-emitter-types": "2.0.0",
