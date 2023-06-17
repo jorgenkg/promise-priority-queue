@@ -35,7 +35,7 @@
   "devDependencies": {
     "@commitlint/cli": "16.3.0",
     "@commitlint/config-conventional": "16.2.4",
-    "@sinonjs/fake-timers": "9.1.2",
+    "@sinonjs/fake-timers": "11.0.0",
     "@types/debug": "4.1.8",
     "@types/node": "17.0.5",
     "@types/sinonjs__fake-timers": "8.1.2",
